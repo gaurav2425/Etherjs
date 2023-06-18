@@ -52,64 +52,70 @@ const App = () => {
 
   // main();
 
-  async function getTransactionHistory1() {
-    // Connect to an Ethereum provider
-    const provider = new ethers.providers.JsonRpcProvider(
-      'https://sepolia.infura.io/v3/8773653715104087b88e88d18fa90df4',
+  // (async () => {
+  //   const provider = new ethers.providers.JsonRpcProvider(
+  //     'https://docs-demo.quiknode.pro/',
+  //   );
+  //   const txCount = await provider.getTransactionCount(
+  //     '0x8D97689C9818892B700e27F316cc3E41e17fBeb9',
+  //     'latest',
+  //   );
+  //   console.log(txCount);
+  // })();
+
+  async function main() {
+    // Configuring the connection to an Ethereum node
+    const network = 'sepolia';
+    const provider = new ethers.providers.InfuraProvider(
+      network,
+      '8773653715104087b88e88d18fa90df4',
+    );
+    // Creating a signing account from a private key
+    const signer = new ethers.Wallet(
+      '30c712785c06faab07c19a40070654d47c50645aa25bc5c99f6ce1cc1cbc9a6f',
+      provider,
     );
 
-    const address = '0x70c68D321Beb263F7e87E68275C210F5EF561BC3';
-
-    // Get transaction history for the address
-    // const history = await provider.getHistory(address);
-    console.log(provider);
-
-    // Process and display transaction details
-    // history.forEach(tx => {
-    //   console.log('Transaction Hash:', tx.hash);
-    //   console.log('From:', tx.from);
-    //   console.log('To:', tx.to);
-    //   console.log('Value:', ethers.utils.formatEther(tx.value));
-    //   console.log('Block Number:', tx.blockNumber);
-    //   console.log('Timestamp:', new Date(tx.timestamp * 1000).toUTCString());
-    //   console.log('-----------------------------');
-    // });
+    // Creating and sending the transaction object
+    const tx = await signer.sendTransaction({
+      to: '0x260DD5e6600700bfFF5957A1d71F1befF4323C90',
+      value: ethers.utils.parseUnits('0.0001', 'ether'),
+    });
+    console.log('Mining transaction...');
+    console.log(`https://${network}.etherscan.io/tx/${tx.hash}`);
+    // Waiting for the transaction to be mined
+    const receipt = await tx.wait();
+    // The transaction is now on chain!
+    console.log(`Mined in block ${receipt.blockNumber}`);
+    console.log(receipt.transactionHash);
+    // 3719460
   }
 
-  // Provide the Ethereum address for which you want to retrieve the transaction history
-  // getTransactionHistory();
+  // require('dotenv').config();
+  // main();
 
-  const getTransactionHistory = async privateKey => {
-    try {
-      // Connect to the Ethereum network using the provider
-      const provider = new ethers.InfuraProvider(
-        'sepolia', // or 'mainnet' for the main Ethereum network
-        '8773653715104087b88e88d18fa90df4',
-      );
+  const CheckBalance = async () => {
+    // Configure the ITX provider using your Infura credentials
+    const itx = new ethers.providers.InfuraProvider(
+      'sepolia',
+      '8773653715104087b88e88d18fa90df4',
+    );
 
-      // Create a wallet using the private key
-      const wallet = new ethers.Wallet(privateKey, provider);
+    // Create a signer instance based on your private key
+    const signer = new ethers.Wallet(
+      '30c712785c06faab07c19a40070654d47c50645aa25bc5c99f6ce1cc1cbc9a6f',
+      itx,
+    );
+    console.log(`Signer public address: ${signer.address}`);
 
-      // Get the transaction history
-      const history = await provider.getHistory(wallet.address);
-
-      // Process and display the transaction history
-      history.forEach(transaction => {
-        console.log('Transaction Hash:', transaction.hash);
-        console.log('From:', transaction.from);
-        console.log('To:', transaction.to);
-        console.log('Value:', ethers.utils.formatEther(transaction.value));
-        console.log('Block Number:', transaction.blockNumber);
-        console.log('-------------------');
-      });
-    } catch (error) {
-      console.error('Error:', error);
-    }
+    // Check your existing ITX balance
+    // balance is added by sending eth to the deposit address: 0x015C7C7A7D65bbdb117C573007219107BD7486f9
+    // balance is deducted everytime you send a relay transaction
+    // const {balance} = await itx.send('relay_getBalance', [signer.address]);
+    // console.log(`Current ITX balance: ` + ethers.utils.formatEther(balance));
   };
 
-  // getTransactionHistory(
-  //   '30c712785c06faab07c19a40070654d47c50645aa25bc5c99f6ce1cc1cbc9a6f',
-  // );
+  CheckBalance();
 
   return (
     <View>
