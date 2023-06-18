@@ -50,19 +50,6 @@ const App = () => {
     console.log(response);
   }
 
-  // main();
-
-  // (async () => {
-  //   const provider = new ethers.providers.JsonRpcProvider(
-  //     'https://docs-demo.quiknode.pro/',
-  //   );
-  //   const txCount = await provider.getTransactionCount(
-  //     '0x8D97689C9818892B700e27F316cc3E41e17fBeb9',
-  //     'latest',
-  //   );
-  //   console.log(txCount);
-  // })();
-
   async function main() {
     // Configuring the connection to an Ethereum node
     const network = 'sepolia';
@@ -91,31 +78,26 @@ const App = () => {
     // 3719460
   }
 
-  // require('dotenv').config();
   // main();
 
-  const CheckBalance = async () => {
-    // Configure the ITX provider using your Infura credentials
-    const itx = new ethers.providers.InfuraProvider(
-      'sepolia',
-      '8773653715104087b88e88d18fa90df4',
-    );
-
-    // Create a signer instance based on your private key
-    const signer = new ethers.Wallet(
-      '30c712785c06faab07c19a40070654d47c50645aa25bc5c99f6ce1cc1cbc9a6f',
-      itx,
-    );
-    console.log(`Signer public address: ${signer.address}`);
-
-    // Check your existing ITX balance
-    // balance is added by sending eth to the deposit address: 0x015C7C7A7D65bbdb117C573007219107BD7486f9
-    // balance is deducted everytime you send a relay transaction
-    // const {balance} = await itx.send('relay_getBalance', [signer.address]);
-    // console.log(`Current ITX balance: ` + ethers.utils.formatEther(balance));
+  const getBalance = () => {
+    const network = 'sepolia';
+    const provider = ethers.getDefaultProvider(network);
+    const address = '0x70c68D321Beb263F7e87E68275C210F5EF561BC3';
+    provider.getBalance(address).then(balance => {
+      // convert a currency unit from wei to ether
+      const balanceInEth = ethers.utils.formatEther(balance);
+      console.log(`balance: ${balanceInEth} ETH`);
+    });
   };
 
-  CheckBalance();
+  getBalance();
+
+  // const getTransactionHistory = async => {
+  //   let pendingTx =  connect.provider.getTransaction(txHash);
+  // };
+
+  // getTransactionHistory();
 
   return (
     <View>
