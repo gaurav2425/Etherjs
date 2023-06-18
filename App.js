@@ -1,57 +1,41 @@
 import 'react-native-get-random-values';
 // Import the the ethers shims (**BEFORE** ethers)
 import '@ethersproject/shims';
-import {StyleSheet, Text, View, Button} from 'react-native';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  Button,
+  TouchableOpacity,
+  Image,
+  StatusBar,
+  Alert,
+} from 'react-native';
+import FlashMessage from 'react-native-flash-message';
+import {showMessage, hideMessage} from 'react-native-flash-message';
 
 const ethers = require('ethers');
 
-// {
-//   "jsonrpc": "2.0",
-//   "id": 1,
-//   "result": "0x7a9bd7186bfaba2fa79cd4178225f5451b80bfcfd29b8c96e6a4a18f768225d6"
-// }
-
 const App = () => {
-  async function main() {
-    let privatekey =
-      '30c712785c06faab07c19a40070654d47c50645aa25bc5c99f6ce1cc1cbc9a6f';
-    let wallet = new ethers.Wallet(privatekey);
+  const [address, setAddress] = useState('');
+  const [amount, setAmount] = useState('');
+  const [balance, setBalance] = useState('');
 
-    console.log('Using wallet address ' + wallet.address);
-    // 0xc4b7b1f8ff7adc17c1b84215a4b7db1b254854cb468cc053bc2ffc62e18b94ae
-    // 0x6c5c18cb41bb0ad6ddfc5c4b0dfa22e252e94dfc285051cf3c328e5faac0411f
-    let transaction = {
-      to: '0x260DD5e6600700bfFF5957A1d71F1befF4323C90',
-      value: ethers.utils.parseEther('0.0001'),
-      gasLimit: '21000',
-      maxPriorityFeePerGas: ethers.utils.parseUnits('20000', 'gwei'),
-      maxFeePerGas: ethers.utils.parseUnits('20000', 'gwei'),
-      nonce: 70,
-      type: 2,
-      chainId: 11155111,
-    };
-
-    // sign and serialize the transaction
-    let rawTransaction = await wallet
-      .signTransaction(transaction)
-      .then(ethers.utils.serializeTransaction(transaction));
-
-    // print the raw transaction hash
-    console.log('Raw txhash string ' + rawTransaction);
-
-    // pass the raw transaction hash to the "eth_sendRawTransaction" endpoint
-    let gethProxy = await fetch(
-      `https://api-sepolia.etherscan.io/api?module=proxy&action=eth_sendRawTransaction&hex=${rawTransaction}&apikey=Y445JX5UGBMF9Y3RQTGQW9EQ56AM23Z1DB`,
-    );
-    let response = await gethProxy.json();
-
-    // print the API response
-    console.log(response);
-  }
+  const getBalance = () => {
+    const network = 'sepolia';
+    const provider = ethers.getDefaultProvider(network);
+    const address = '0x70c68D321Beb263F7e87E68275C210F5EF561BC3';
+    provider.getBalance(address).then(balance => {
+      // convert a currency unit from wei to ether
+      const balanceInEth = ethers.utils.formatEther(balance);
+      console.log(`balance: ${balanceInEth} ETH`);
+      setBalance(balanceInEth);
+    });
+  };
 
   async function main() {
-    // Configuring the connection to an Ethereum node
     const network = 'sepolia';
     const provider = new ethers.providers.InfuraProvider(
       network,
@@ -75,23 +59,15 @@ const App = () => {
     // The transaction is now on chain!
     console.log(`Mined in block ${receipt.blockNumber}`);
     console.log(receipt.transactionHash);
+    getBalance();
     // 3719460
   }
 
   // main();
 
-  const getBalance = () => {
-    const network = 'sepolia';
-    const provider = ethers.getDefaultProvider(network);
-    const address = '0x70c68D321Beb263F7e87E68275C210F5EF561BC3';
-    provider.getBalance(address).then(balance => {
-      // convert a currency unit from wei to ether
-      const balanceInEth = ethers.utils.formatEther(balance);
-      console.log(`balance: ${balanceInEth} ETH`);
-    });
-  };
-
-  getBalance();
+  useEffect(() => {
+    getBalance();
+  }, []);
 
   // const getTransactionHistory = async => {
   //   let pendingTx =  connect.provider.getTransaction(txHash);
@@ -100,13 +76,171 @@ const App = () => {
   // getTransactionHistory();
 
   return (
-    <View>
-      <Text>App</Text>
-      <Button title="Send Transcation" onPress={main}></Button>
+    <View style={styles.logincontainer}>
+      <View style={styles.fieldscontainer}>
+        <View style={styles.login_txt_container}>
+          <Text style={styles.login_txt}>Current Balance{balance}</Text>
+          <Text style={styles.login_txt}>Transfer Eth</Text>
+        </View>
+
+        <TextInput
+          placeholder="0xAf37F5799D111c12149871b312Ca26A52a23a0D5"
+          style={styles.address}
+          value={address}
+          placeholderTextColor={'#9B9898'}
+          onChangeText={text => setAddress(text)}></TextInput>
+
+        <TextInput
+          placeholder="0.1 ether 10^17"
+          style={styles.amount}
+          placeholderTextColor={'#9B9898'}
+          value={amount}
+          onChangeText={text => setAmount(text)}></TextInput>
+
+        <TouchableOpacity
+          style={styles.btn}
+          onPress={() => {
+            main();
+          }}>
+          <Text style={styles.btntxt}>Transfer ETH</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.txt2container}>
+        <Text style={styles.txt2}>
+          Designed and Developed By Gaurav Burande
+        </Text>
+      </View>
+      <StatusBar backgroundColor="#1A1919" barStyle="light-content" />
+      <FlashMessage position="top" />
     </View>
   );
 };
 
 export default App;
 
-const styles = StyleSheet.create({});
+const P90 = '90%';
+const P20 = '20%';
+
+const styles = StyleSheet.create({
+  logincontainer: {
+    flex: 1,
+    backgroundColor: '#0C0C0C',
+    justifyContent: 'space-between',
+  },
+  login_txt: {
+    fontSize: 45,
+    fontFamily: 'Gilroy-Bold',
+    color: '#FFFFFF',
+  },
+
+  txt: {
+    color: '#000000',
+    fontSize: 20,
+    fontFamily: 'Poppins-BlackItalic',
+    // textAlign: 'center',
+    marginLeft: 10,
+  },
+  txtcontainer: {
+    width: P90,
+    // backgroundColor: '#FFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+  },
+  txtlogo: {
+    color: '#000000',
+    fontSize: 30,
+    fontFamily: 'Poppins-BlackItalic',
+    textAlign: 'center',
+    // paddingTop: 30,
+  },
+  login_txt_container: {
+    width: P90,
+    // backgroundColor: '#F65F69',
+  },
+
+  address: {
+    backgroundColor: '#1A1919',
+    width: P90,
+    alignSelf: 'center',
+    marginTop: 10,
+    // borderRadius: 10,
+    paddingLeft: 10,
+    fontSize: 17,
+    fontFamily: 'Gilroy-Medium',
+    // borderWidth: 1,
+    color: '#FFFFFF',
+    // borderColor: '#7D7878',
+    // borderColor: '#D9D3D3',
+  },
+
+  amount: {
+    backgroundColor: '#1A1919',
+    width: P90,
+    alignSelf: 'center',
+    marginTop: 10,
+    // borderRadius: 10,
+    fontSize: 17,
+    fontFamily: 'Gilroy-Medium',
+    paddingLeft: 10,
+    // borderWidth: 1,
+    color: '#FFFFFF',
+    // borderColor: '#7D7878',
+    // borderColor: '#D9D3D3',
+  },
+  fieldscontainer: {
+    paddingTop: P20,
+    // backgroundColor: '#696969',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  btncontainer: {
+    width: P90,
+    alignSelf: 'center',
+    paddingTop: 10,
+  },
+  btn: {
+    height: 50,
+    width: P90,
+    backgroundColor: '#FFFFFF',
+    // backgroundColor: '#0FA60C',
+    alignSelf: 'center',
+    // borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  btntxt: {
+    alignSelf: 'center',
+    color: '#000000',
+    fontSize: 21,
+    fontFamily: 'Gilroy-Bold',
+    // letterSpacing: 1,
+  },
+  txt2: {
+    color: '#FFFFFF',
+    // width: P90,
+
+    paddingTop: 10,
+    marginLeft: 10,
+    fontFamily: 'Gilroy-Bold',
+    fontSize: 15,
+    // backgroundColor: '#FFFF',
+  },
+  txt2Register: {
+    fontFamily: 'Gilroy-Bold',
+    fontSize: 15,
+    // backgroundColor: '#FFFF',
+    paddingTop: 10,
+    marginLeft: 5,
+    color: '#FFFF',
+  },
+  txt2container: {
+    // backgroundColor: '#F65F65',
+    alignItems: 'center',
+    justifyContent: 'center',
+    display: 'flex',
+    flexDirection: 'row',
+    paddingBottom: 20,
+  },
+});
