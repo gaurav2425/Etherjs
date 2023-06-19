@@ -19,6 +19,7 @@ const App = () => {
   const [address, setAddress] = useState('');
   const [amount, setAmount] = useState('');
   const [balance, setBalance] = useState('');
+  const [receiversAddress, setReceiversAddress] = useState('');
 
   const getBalance = () => {
     const network = 'sepolia';
@@ -33,21 +34,23 @@ const App = () => {
   };
 
   async function SendEth() {
+    const ProjectID = '8773653715104087b88e88d18fa90df4';
+    const PrivateKey =
+      '30c712785c06faab07c19a40070654d47c50645aa25bc5c99f6ce1cc1cbc9a6f';
+    // const ReceiversAddress = '0x260DD5e6600700bfFF5957A1d71F1befF4323C90';
     const network = 'sepolia';
-    const provider = new ethers.providers.InfuraProvider(
-      network,
-      '8773653715104087b88e88d18fa90df4',
-    );
+    const provider = new ethers.providers.InfuraProvider(network, ProjectID);
     // Creating a signing account from a private key
-    const signer = new ethers.Wallet(
-      '30c712785c06faab07c19a40070654d47c50645aa25bc5c99f6ce1cc1cbc9a6f',
-      provider,
-    );
+    const signer = new ethers.Wallet(PrivateKey, provider);
 
     // Creating and sending the transaction object
     const tx = await signer.sendTransaction({
-      to: '0x260DD5e6600700bfFF5957A1d71F1befF4323C90',
+      to: receiversAddress,
       value: ethers.utils.parseUnits('0.0001', 'ether'),
+    });
+    showMessage({
+      message: `Mining transaction...`,
+      type: 'info',
     });
     console.log('Mining transaction...');
     console.log(`https://${network}.etherscan.io/tx/${tx.hash}`);
@@ -56,6 +59,12 @@ const App = () => {
     // The transaction is now on chain!
     console.log(`Mined in block ${receipt.blockNumber}`);
     console.log(receipt.transactionHash);
+    showMessage({
+      message: `Transcation Successful with Hash ${receipt.transactionHash}`,
+      type: 'success',
+      // autoHide: false,
+      duration: 10000,
+    });
     getBalance();
     // 3719460
   }
@@ -68,16 +77,16 @@ const App = () => {
     <View style={styles.logincontainer}>
       <View style={styles.fieldscontainer}>
         <View style={styles.login_txt_container}>
-          <Text style={styles.balance_txt}>Current Balance{balance}</Text>
+          <Text style={styles.balance_txt}>Current Balance: {balance}</Text>
           <Text style={styles.login_txt}>Transfer Eth</Text>
         </View>
 
         <TextInput
           placeholder="0xAf37F5799D111c12149871b312Ca26A52a23a0D5"
           style={styles.address}
-          value={address}
+          value={receiversAddress}
           placeholderTextColor={'#9B9898'}
-          onChangeText={text => setAddress(text)}></TextInput>
+          onChangeText={text => setReceiversAddress(text)}></TextInput>
 
         <TextInput
           placeholder="0.1 ether 10^17"
@@ -130,12 +139,10 @@ const styles = StyleSheet.create({
     color: '#000000',
     fontSize: 20,
     fontFamily: 'Poppins-BlackItalic',
-    // textAlign: 'center',
     marginLeft: 10,
   },
   txtcontainer: {
     width: P90,
-    // backgroundColor: '#FFFF',
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
@@ -145,11 +152,9 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontFamily: 'Poppins-BlackItalic',
     textAlign: 'center',
-    // paddingTop: 30,
   },
   login_txt_container: {
     width: P90,
-    // backgroundColor: '#F65F69',
   },
 
   address: {
@@ -157,14 +162,10 @@ const styles = StyleSheet.create({
     width: P90,
     alignSelf: 'center',
     marginTop: 10,
-    // borderRadius: 10,
     paddingLeft: 10,
     fontSize: 17,
     fontFamily: 'Gilroy-Medium',
-    // borderWidth: 1,
     color: '#FFFFFF',
-    // borderColor: '#7D7878',
-    // borderColor: '#D9D3D3',
   },
 
   amount: {
@@ -172,18 +173,13 @@ const styles = StyleSheet.create({
     width: P90,
     alignSelf: 'center',
     marginTop: 10,
-    // borderRadius: 10,
     fontSize: 17,
     fontFamily: 'Gilroy-Medium',
     paddingLeft: 10,
-    // borderWidth: 1,
     color: '#FFFFFF',
-    // borderColor: '#7D7878',
-    // borderColor: '#D9D3D3',
   },
   fieldscontainer: {
     paddingTop: P20,
-    // backgroundColor: '#696969',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -196,9 +192,7 @@ const styles = StyleSheet.create({
     height: 50,
     width: P90,
     backgroundColor: '#FFFFFF',
-    // backgroundColor: '#0FA60C',
     alignSelf: 'center',
-    // borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 20,
@@ -208,28 +202,23 @@ const styles = StyleSheet.create({
     color: '#000000',
     fontSize: 21,
     fontFamily: 'Gilroy-Bold',
-    // letterSpacing: 1,
   },
   txt2: {
     color: '#FFFFFF',
-    // width: P90,
 
     paddingTop: 10,
     marginLeft: 10,
     fontFamily: 'Gilroy-Bold',
     fontSize: 15,
-    // backgroundColor: '#FFFF',
   },
   txt2Register: {
     fontFamily: 'Gilroy-Bold',
     fontSize: 15,
-    // backgroundColor: '#FFFF',
     paddingTop: 10,
     marginLeft: 5,
     color: '#FFFF',
   },
   txt2container: {
-    // backgroundColor: '#F65F65',
     alignItems: 'center',
     justifyContent: 'center',
     display: 'flex',
