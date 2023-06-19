@@ -60,17 +60,9 @@ const App = () => {
     // 3719460
   }
 
-  // main();
-
   useEffect(() => {
     getBalance();
   }, []);
-
-  // const getTransactionHistory = async => {
-  //   let pendingTx =  connect.provider.getTransaction(txHash);
-  // };
-
-  // getTransactionHistory();
 
   return (
     <View style={styles.logincontainer}>
