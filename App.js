@@ -7,11 +7,8 @@ import {
   Text,
   View,
   TextInput,
-  Button,
   TouchableOpacity,
-  Image,
   StatusBar,
-  Alert,
 } from 'react-native';
 import FlashMessage from 'react-native-flash-message';
 import {showMessage, hideMessage} from 'react-native-flash-message';
@@ -79,7 +76,7 @@ const App = () => {
     <View style={styles.logincontainer}>
       <View style={styles.fieldscontainer}>
         <View style={styles.login_txt_container}>
-          <Text style={styles.login_txt}>Current Balance{balance}</Text>
+          <Text style={styles.balance_txt}>Current Balance{balance}</Text>
           <Text style={styles.login_txt}>Transfer Eth</Text>
         </View>
 
@@ -126,6 +123,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#0C0C0C',
     justifyContent: 'space-between',
+  },
+  balance_txt: {
+    fontSize: 25,
+    color: '#FFFFFF',
   },
   login_txt: {
     fontSize: 45,
