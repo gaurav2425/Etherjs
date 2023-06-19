@@ -32,7 +32,7 @@ const App = () => {
     });
   };
 
-  async function main() {
+  async function SendEth() {
     const network = 'sepolia';
     const provider = new ethers.providers.InfuraProvider(
       network,
@@ -89,7 +89,7 @@ const App = () => {
         <TouchableOpacity
           style={styles.btn}
           onPress={() => {
-            main();
+            SendEth();
           }}>
           <Text style={styles.btntxt}>Transfer ETH</Text>
         </TouchableOpacity>
