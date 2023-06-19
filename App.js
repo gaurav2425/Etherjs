@@ -11,12 +11,11 @@ import {
   StatusBar,
 } from 'react-native';
 import FlashMessage from 'react-native-flash-message';
-import {showMessage, hideMessage} from 'react-native-flash-message';
+import {showMessage} from 'react-native-flash-message';
 
 const ethers = require('ethers');
 
 const App = () => {
-  const [address, setAddress] = useState('');
   const [amount, setAmount] = useState('');
   const [balance, setBalance] = useState('');
   const [receiversAddress, setReceiversAddress] = useState('');
@@ -33,7 +32,50 @@ const App = () => {
     });
   };
 
+  const checkStatus = txhash => {
+    const url = 'https://sepolia.infura.io/v3/8773653715104087b88e88d18fa90df4';
+    const data = {
+      jsonrpc: '2.0',
+      method: 'eth_getTransactionReceipt',
+      params: [`${txhash}`],
+      id: 1,
+    };
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.result != null) {
+          showMessage({
+            message: `Successful Transcation with Hash: ${txhash}`,
+            type: 'success',
+            duration: 10000,
+          });
+        } else {
+          showMessage({
+            message: `Transcation is Processing`,
+            type: 'info',
+            duration: 10000,
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  };
+
   async function SendEth() {
+    showMessage({
+      message: `Transaction is Started...`,
+      type: 'info',
+      autoHide: false,
+    });
+
     const ProjectID = '8773653715104087b88e88d18fa90df4';
     const PrivateKey =
       '30c712785c06faab07c19a40070654d47c50645aa25bc5c99f6ce1cc1cbc9a6f';
@@ -51,6 +93,7 @@ const App = () => {
     showMessage({
       message: `Mining transaction...`,
       type: 'info',
+      autoHide: false,
     });
     console.log('Mining transaction...');
     console.log(`https://${network}.etherscan.io/tx/${tx.hash}`);
@@ -59,15 +102,26 @@ const App = () => {
     // The transaction is now on chain!
     console.log(`Mined in block ${receipt.blockNumber}`);
     console.log(receipt.transactionHash);
-    showMessage({
-      message: `Transcation Successful with Hash ${receipt.transactionHash}`,
-      type: 'success',
-      // autoHide: false,
-      duration: 10000,
-    });
+    console.log(`Block Hash:`, receipt.blockHash);
+    setReceiversAddress('');
+    checkStatus(receipt.transactionHash);
     getBalance();
-    // 3719460
   }
+
+  const checkValidity = () => {
+    if (
+      receiversAddress != '' &&
+      ethers.utils.isAddress(receiversAddress) == true
+    ) {
+      SendEth();
+    } else {
+      showMessage({
+        message: `Enter Valid Address`,
+        type: 'info',
+        duration: 3000,
+      });
+    }
+  };
 
   useEffect(() => {
     getBalance();
@@ -98,7 +152,7 @@ const App = () => {
         <TouchableOpacity
           style={styles.btn}
           onPress={() => {
-            SendEth();
+            checkValidity();
           }}>
           <Text style={styles.btntxt}>Transfer ETH</Text>
         </TouchableOpacity>
